@@ -25,7 +25,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-    email: z.email(),
+    email: z.string().email(),
     password: z.string().min(1, { message: "Password in required" }),
 });
 
