@@ -4,17 +4,15 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 const page = async () => {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    })
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-    if (!!session) {
-        redirect("/");
-    }
+  if (!!session) {
+    redirect("/");
+  }
 
-    return (
-        <SignInView />
-    );
-}
+  return <SignInView />;
+};
 
-export default page
+export default page;
