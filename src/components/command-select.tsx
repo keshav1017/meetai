@@ -11,7 +11,7 @@ interface Props {
     children: ReactNode;
   }>;
   onSelect: (value: string) => void;
-  onSearch: (value: string) => void;
+  onSearch?: (value: string) => void;
   value: string;
   placeholder?: string;
   isSearchable?: boolean;
@@ -29,6 +29,11 @@ export const CommandSelect = ({
   const [open, setOpen] = useState(false);
   const selectedOption = options.find((option) => option.value === value);
 
+  const handleOpenChange = (open: boolean) => {
+    onSearch?.("");
+    setOpen(open);
+  }
+
   return (
     <>
       <Button
@@ -38,18 +43,16 @@ export const CommandSelect = ({
         className={cn(
           "h-9 justify-between font-normal px-2",
           !selectedOption && "text-muted-foreground",
-          className,
+          className
         )}
       >
-        <div>
-          {selectedOption?.children ?? placeholder}
-        </div>
-        <ChevronsUpDownIcon/>
+        <div>{selectedOption?.children ?? placeholder}</div>
+        <ChevronsUpDownIcon />
       </Button>
       <CommandResponsiveDialog
         shouldFilter={!onSearch}
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={handleOpenChange}
       >
         <CommandInput placeholder="Search..." onValueChange={onSearch} />
         <CommandList>
@@ -62,8 +65,8 @@ export const CommandSelect = ({
             <CommandItem
               key={option.id}
               onSelect={() => {
-                onSelect(option.value)
-                setOpen(false)
+                onSelect(option.value);
+                setOpen(false);
               }}
             >
               {option.children}
@@ -72,5 +75,5 @@ export const CommandSelect = ({
         </CommandList>
       </CommandResponsiveDialog>
     </>
-  )
+  );
 }
