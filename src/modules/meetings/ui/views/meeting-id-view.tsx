@@ -3,12 +3,20 @@
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { useTRPC } from "@/trpc/client";
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { MeetingIdViewHeader } from "../components/meeting-id-view-header";
 import { useRouter } from "next/navigation";
 import { useConfirm } from "@/hooks/use-confirm";
 import { UpdateMeetingDialog } from "../components/update-meeting-dialog";
 import { useState } from "react";
+import { UpcomingState } from "../components/upcoming-state";
+import { ActiveState } from "../components/active-state";
+import { CancelledState } from "../components/cancelled-state";
+import { ProcessingState } from "../components/processing-state";
 
 interface Props {
   meetingId: string;
@@ -27,7 +35,7 @@ export const MeetingIdView = ({ meetingId }: Props) => {
   );
 
   const { data } = useSuspenseQuery(
-    trpc.meetings.getOne.queryOptions({ id: meetingId }),
+    trpc.meetings.getOne.queryOptions({ id: meetingId })
   );
 
   const removeMeeting = useMutation(
@@ -44,9 +52,15 @@ export const MeetingIdView = ({ meetingId }: Props) => {
     const ok = await confirmRemove();
 
     if (!ok) return;
-    
+
     await removeMeeting.mutateAsync({ id: meetingId });
   };
+
+  const isActive = data.status === "active";
+  const isUpcomming = data.status === "upcomming";
+  const isCancelled = data.status === "cancelled";
+  const isCompleted = data.status === "completed";
+  const isProcessing = data.status === "processing";
 
   return (
     <>
@@ -63,11 +77,21 @@ export const MeetingIdView = ({ meetingId }: Props) => {
           onEdit={() => setUpdateMeetingDialogOpen(true)}
           onRemove={handleRemoveMeeting}
         />
-        {JSON.stringify(data, null, 2)}
+        {isCancelled && <CancelledState/>}
+        {isActive && <ActiveState meetingId={meetingId} />}
+        {isUpcomming && (
+          <UpcomingState
+            meetingId={meetingId}
+            onCancelMeeting={() => {}}
+            isCancelling={false}
+          />
+        )}
+        {isCompleted && <div>Completed</div>}
+        {isProcessing && <ProcessingState/>}
       </div>
     </>
   );
-}
+};
 
 export const MeetingIdViewLoading = () => {
   return (
